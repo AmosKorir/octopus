@@ -3,24 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/followFragment">
+    app:startDestination="@id/searchFragment2">
     <fragment
         android:id="@+id/searchFragment2"
         android:name="com.octopus.fragments.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" >
+        tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_searchFragment2_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            app:destination="@id/profileFragment">
+            <argument
+                android:name="username"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.octopus.fragments.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_followFragment"
+            app:destination="@id/followFragment">
+            <argument
+                android:name="username"
+                android:defaultValue=""
+                app:argType="string" />
+
+            <argument
+                android:name="follow_type"
+                android:defaultValue=""
+                app:argType="string" />
+
+            <argument
+                android:name="avatar_url"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/action_profileFragment_self2"
+            app:destination="@id/profileFragment" >
+            <argument
+                android:name="username"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </fragment>
     <fragment
         android:id="@+id/followFragment"
         android:name="com.octopus.fragments.FollowFragment"
         android:label="fragment_follow"
-        tools:layout="@layout/fragment_follow" />
+        tools:layout="@layout/fragment_follow">
+        <action
+            android:id="@+id/action_followFragment_to_profileFragment"
+            app:destination="@id/profileFragment">
+            <argument
+                android:name="username"
+                android:defaultValue=""
+                app:argType="string" />
+        </action>
+    </fragment>
 </navigation>

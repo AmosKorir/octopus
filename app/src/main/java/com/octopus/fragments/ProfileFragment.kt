@@ -6,31 +6,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.octopus.R
 import com.octopus.SearchNewViewModel
-import com.octopus.adapters.FollowerRecyclerViewAdapter
+import com.octopus.adapters.HorizontalPagingFollowerAdapter
+import com.octopus.adapters.ItemSelected
 import com.octopus.baseclasses.BaseViewModel.BaseViewModel
 import com.octopus.databinding.FragmentProfileBinding
+import com.octopus.domain.OctConstants
 import com.octopus.domain.models.Follower
+import com.octopus.domain.models.Following
 import com.octopus.domain.models.User
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ProfileFragment : Fragment() {
+class ProfileFragment : Fragment(), ItemSelected {
+    private lateinit var navController: NavController
+    private val searchNewViewModel: SearchNewViewModel by viewModels()
+    private lateinit var binding: FragmentProfileBinding
+    lateinit var followerAdapter: HorizontalPagingFollowerAdapter
+    lateinit var followingAdapter: HorizontalPagingFollowerAdapter
 
-    private val searchNewViewModel: SearchNewViewModel by viewModels<SearchNewViewModel>()
-    lateinit var binding: FragmentProfileBinding
+    var username: String = OctConstants.EMPTY_STRING
+    var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
@@ -38,35 +50,64 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observers()
         initView()
+        observers()
     }
 
     private fun initView() {
+        val bundle = arguments
+        username = bundle?.getString(OctConstants.USERNAME) ?: OctConstants.EMPTY_STRING
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+
         binding.followerLayout.followersRecyclerview.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.followingLayout.followersRecyclerview.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        followerAdapter = HorizontalPagingFollowerAdapter(requireContext(), this)
+        followingAdapter = HorizontalPagingFollowerAdapter(requireContext(), this)
+
+
+
+        binding.backArrow.setOnClickListener {
+            navController.navigateUp()
+        }
+
+        binding.followerLayout.followerMore.setOnClickListener {
+            navigateToMoreFollows(OctConstants.FOLLOWER)
+        }
+        binding.followingLayout.followingMore.setOnClickListener {
+            navigateToMoreFollows(OctConstants.FOLLOWING)
+        }
     }
+
 
     private fun observers() {
 
-        searchNewViewModel.searchUser("amoskorir")
+        searchNewViewModel.searchUser(username)
         searchNewViewModel.uiState.observe(viewLifecycleOwner) { loadState ->
 
             when (loadState) {
                 is BaseViewModel.LoadingState.ShowLoading -> {
-                    Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                    binding.loadView.progressBar.visibility = View.VISIBLE
+                    binding.loadView.errorView.errorView.visibility = View.GONE
 
                 }
                 is BaseViewModel.LoadingState.Error -> {
-                    Toast.makeText(requireContext(), loadState.message, Toast.LENGTH_SHORT).show()
+                    binding.loadView.progressBar.visibility = View.GONE
+                    binding.loadView.errorView.errorView.visibility = View.VISIBLE
+                    binding.loadView.errorView.errorMessageTv.text = loadState.message
                 }
                 is BaseViewModel.LoadingState.Success -> {
                     loadState.data?.let { displayData(it) }
+                    binding.loadView.root.visibility= View.GONE
+                    binding.loadView.progressBar.visibility = View.GONE
+                    binding.loadView.errorView.errorView.visibility = View.GONE
 
                 }
                 is BaseViewModel.LoadingState.Default -> {
+                    binding.loadView.progressBar.visibility = View.GONE
+                    binding.loadView.errorView.errorView.visibility = View.GONE
 
                 }
                 else -> {}
@@ -79,38 +120,65 @@ class ProfileFragment : Fragment() {
             is User -> {
                 showUserDetails(data)
             }
+            is BaseViewModel.PageDataType -> {
+                if (data.type == OctConstants.FOLLOWER) {
+                    displayFollowers(data.pageData as PagingData<Any>)
+                } else if (data.type == OctConstants.FOLLOWING) {
+                    displayFollowing(data.pageData as PagingData<Any>)
 
-            is java.util.ArrayList<*> -> {
-               displayFollowers(data as ArrayList<Follower>)
-               displayFollowing(data as ArrayList<Follower>)
+                }
+
             }
         }
     }
 
     private fun showUserDetails(user: User) {
+        this.user = user
         binding.usernameTv.text = user.name
         binding.organizationTv.text = user.company
-        searchNewViewModel.getFollowers("amoskorir")
+        searchNewViewModel.getFollowers(username)
+        searchNewViewModel.getFollowing(username)
 
-        Glide
-            .with(this)
-            .load(user.avatar_url)
-            .centerCrop()
-            .circleCrop()
-            .placeholder(R.drawable.octocat)
-            .into(binding.userImageView);
-
+        Glide.with(this).load(user.avatar_url).centerCrop().circleCrop()
+            .placeholder(R.drawable.octocat).into(binding.userImageView);
 
         binding.biolayout.bioTv.text = user.bio
     }
 
-    private fun displayFollowers(followers: ArrayList<Follower>) {
-        val adapter = FollowerRecyclerViewAdapter(requireContext(), followers)
-        binding.followerLayout.followersRecyclerview.adapter = adapter
+    private fun displayFollowers(followers: PagingData<Any>) {
+        followerAdapter.submitData(lifecycle, followers)
+        binding.followerLayout.followersRecyclerview.adapter = followerAdapter
     }
 
-    private fun displayFollowing(followers: ArrayList<Follower>) {
-        val adapter = FollowerRecyclerViewAdapter(requireContext(), followers)
-        binding.followingLayout.followersRecyclerview.adapter = adapter
+    private fun displayFollowing(following: PagingData<Any>) {
+        followingAdapter.submitData(lifecycle, following)
+        binding.followingLayout.followersRecyclerview.adapter = followingAdapter
+    }
+
+
+    private fun navigateToMoreFollows(followerType: String) {
+        val bundle = bundleOf(
+            OctConstants.USERNAME to username,
+            OctConstants.AVATAR_URL to user?.avatar_url,
+            OctConstants.FOLLOW_TYPE to followerType
+        )
+        navController.navigate(R.id.action_profileFragment_to_followFragment, bundle)
+    }
+
+    override fun onSelected(item: Any) {
+        when (item) {
+            is Follower -> {
+                navigateToUserProfile(item.login)
+            }
+
+            is Following -> {
+                navigateToUserProfile(item.login)
+            }
+        }
+    }
+
+    private fun navigateToUserProfile(username: String) {
+        val bundle = bundleOf(OctConstants.USERNAME to username)
+        navController.navigate(R.id.action_profileFragment_self2, bundle)
     }
 }

@@ -4,6 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs'
+
 }
 
 android {
@@ -47,24 +49,34 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation Deps.Android.androidCore
+    implementation Deps.Android.appcompat
+    implementation Deps.Android.androidMaterial
+    implementation Deps.Android.androidContraintLayout
     implementation project(path: ':data')
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    implementation Deps.Navigation.navigationFragment
+    implementation Deps.Navigation.navigation
+    testImplementation Deps.Test.junit
+    androidTestImplementation Deps.Test.androidTest
+    androidTestImplementation Deps.Test.expresso
     implementation Deps.dagger.daggerHilt
     kapt(Deps.dagger.daggerHiltCompiler)
 
-    implementation 'com.github.bumptech.glide:glide:4.14.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+    implementation Deps.glide.glide
+    annotationProcessor Deps.glide.annotationProcessor
 
-    implementation "androidx.paging:paging-runtime:3.1.1"
-    implementation "androidx.paging:paging-rxjava3:3.1.1"
+    implementation Deps.Paging.runtime
+    implementation Deps.Paging.rxjava
+
+
+    testImplementation Deps.Mockk.mockk
+    androidTestImplementation Deps.Mockk.mockkAndroid
+
+    androidTestImplementation Deps.AndroidCoreTesting.core
+
+
+    androidTestImplementation Deps.Truth.truth
+    testImplementation Deps.Truth.truth
 
 
 

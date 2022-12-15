@@ -16,6 +16,15 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true"]
+            }
+        }
     }
 
     buildTypes {
@@ -62,6 +71,15 @@ dependencies {
     implementation "androidx.paging:paging-runtime:3.1.1"
     implementation "androidx.paging:paging-rxjava3:3.1.1"
 
+
+    def room_version = "2.4.3"
+
+    api "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    api "androidx.room:room-rxjava3:$room_version"
+    api "androidx.room:room-paging:$room_version"
+    api "androidx.room:room-ktx:2.4.3"
 
 
 }

@@ -2,6 +2,7 @@ package com.octopus.baseclasses.BaseViewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagingData
 import com.octopus.domain.models.Follower
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -9,7 +10,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-open class BaseViewModel: ViewModel() {
+open class BaseViewModel : ViewModel() {
     private val imHandleErrorLiveData = MutableLiveData<Throwable>()
     private val compositeDisposable = CompositeDisposable()
 
@@ -25,19 +26,18 @@ open class BaseViewModel: ViewModel() {
         object ShowLoading : LoadingState()
         data class Error(val message: String) : LoadingState()
         data class Success(val data: Any?) : LoadingState()
-        data class Followers(val data: List<Follower>) : LoadingState()
     }
 
 
     fun <T> Single<T>.background(): Single<T> = this
         .subscribeOn(Schedulers.io())
 
-    fun <T> Observable<T>.background():Observable<T> = this
+    fun <T> Observable<T>.background(): Observable<T> = this
         .subscribeOn(Schedulers.io())
 
 
     fun <T> Observable<T>.resultSubscribe(success: () -> Unit = {}) {
-        uiState.value = LoadingState.ShowLoading
+        uiState.value=( LoadingState.ShowLoading)
 
         val disposable = this.observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -51,7 +51,7 @@ open class BaseViewModel: ViewModel() {
     }
 
     fun <T> Single<T>.resultSubscribe(success: () -> Unit = {}) {
-        uiState.value = LoadingState.ShowLoading
+        uiState.value=( LoadingState.ShowLoading)
 
         val disposable = this.observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -63,13 +63,12 @@ open class BaseViewModel: ViewModel() {
                 })
         compositeDisposable.add(disposable)
     }
+
     fun defaultState() {
         uiState.value = LoadingState.Default
     }
 
-//    fun getErrorMessage(throwable: Throwable): String {
-//        return ErrorMessageHandler.getErrorMessage(throwable)
-//    }
+    data class PageDataType(val type: String, val pageData: PagingData<*>)
 
 
 }

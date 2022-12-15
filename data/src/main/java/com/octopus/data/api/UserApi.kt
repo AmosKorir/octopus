@@ -13,4 +13,6 @@ interface UserApi {
 
     @GET("users/{username}/followers")
     fun getFollowers(@Path("username") username: String,@Query("page") page:Int): Single<List<FollowerApiResponse>>
+    @GET("users/{username}/following")
+    fun getFollowing(@Path("username") username: String,@Query("page") page:Int): Single<List<FollowerApiResponse>>
 }

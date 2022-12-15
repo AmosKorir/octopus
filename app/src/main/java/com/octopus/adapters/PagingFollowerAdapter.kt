@@ -8,30 +8,55 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.octopus.R
-import com.octopus.databinding.FollowerItemLayoutBinding
+import com.octopus.databinding.FollowUserItemBinding
 import com.octopus.domain.models.Follower
+import com.octopus.domain.models.Following
 
-class PagingFollowerAdapter(val  context: Context): PagingDataAdapter<Follower,PagingFollowerAdapter.FollowerViewHolder>(FOLLOWER_DIFF_CALLBACK){
-    class FollowerViewHolder(val binding: FollowerItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+class PagingFollowerAdapter(val context: Context, val selected: ItemSelected) :
+    PagingDataAdapter<Any, PagingFollowerAdapter.FollowerViewHolder>(FOLLOWER_DIFF_CALLBACK) {
+    class FollowerViewHolder(val binding: FollowUserItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FollowerViewHolder {
         val binding =
-            FollowerItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            FollowUserItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FollowerViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: FollowerViewHolder, position: Int) {
-        getItem(position)?.let { follower ->
-            holder.binding.followerName.text = follower.login
-            Glide
-                .with(context)
-                .load(follower.avatar_url)
-                .centerCrop()
-                .circleCrop()
-                .placeholder(R.drawable.octocat)
-                .into(holder.binding.followerImage);
+
+        val item = getItem(position)
+
+        item?.let {
+            holder.itemView.setOnClickListener {
+                selected.onSelected(item)
+            }
+            when (it) {
+                is Follower -> {
+                    holder.binding.followerName.text = it.login
+                    Glide
+                        .with(context)
+                        .load(it.avatar_url)
+                        .centerCrop()
+                        .circleCrop()
+                        .placeholder(R.drawable.octocat)
+                        .into(holder.binding.followerImage);
+                }
+
+                is Following -> {
+                    holder.binding.followerName.text = it.login
+                    Glide
+                        .with(context)
+                        .load(it.avatar_url)
+                        .centerCrop()
+                        .circleCrop()
+                        .placeholder(R.drawable.octocat)
+                        .into(holder.binding.followerImage);
+                }
+                else -> {}
+            }
         }
 
 
@@ -39,12 +64,33 @@ class PagingFollowerAdapter(val  context: Context): PagingDataAdapter<Follower,P
 
 
     companion object {
-        private val FOLLOWER_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Follower>() {
-            override fun areItemsTheSame(oldItem: Follower, newItem: Follower): Boolean =
-                oldItem.login == newItem.login
+        private val FOLLOWER_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Any>() {
+            override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
 
-            override fun areContentsTheSame(oldItem: Follower, newItem:Follower): Boolean =
-                oldItem == newItem
+                if (oldItem is Follower && newItem is Follower) {
+                    return oldItem.id == newItem.id
+                }
+
+                if (oldItem is Following && newItem is Following) {
+                    return oldItem.id == newItem.id
+                }
+                return false
+            }
+
+
+            override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
+
+                if (oldItem is Follower && newItem is Follower) {
+                    return oldItem == newItem
+                }
+
+                if (oldItem is Following && newItem is Following) {
+                    return oldItem == newItem
+                }
+
+                return false
+            }
+
         }
     }
 

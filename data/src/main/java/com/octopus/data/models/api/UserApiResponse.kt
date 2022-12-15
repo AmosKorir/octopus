@@ -7,11 +7,11 @@ data class UserApiResponse(
     @SerializedName("avatar_url")
     val avatarUrl: String,
     @SerializedName("bio")
-    val bio: String,
+    val bio: String?,
     @SerializedName("blog")
-    val blog: String,
+    val blog: String?,
     @SerializedName("company")
-    val company: String,
+    val company: String?,
     @SerializedName("created_at")
     val createdAt: String,
     @SerializedName("email")
@@ -31,7 +31,7 @@ data class UserApiResponse(
     @SerializedName("gravatar_id")
     val gravatarId: String,
     @SerializedName("hireable")
-    val hireable: Boolean,
+    val hireable: Boolean?,
     @SerializedName("html_url")
     val htmlUrl: String,
     @SerializedName("id")
@@ -41,7 +41,7 @@ data class UserApiResponse(
     @SerializedName("login")
     val login: String,
     @SerializedName("name")
-    val name: String,
+    val name: String?,
     @SerializedName("node_id")
     val nodeId: String,
     @SerializedName("organizations_url")
@@ -61,7 +61,7 @@ data class UserApiResponse(
     @SerializedName("subscriptions_url")
     val subscriptionsUrl: String,
     @SerializedName("twitter_username")
-    val twitterUsername: String,
+    val twitterUsername: String?,
     @SerializedName("type")
     val type: String,
     @SerializedName("updated_at")
