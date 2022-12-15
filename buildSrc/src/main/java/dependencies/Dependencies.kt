@@ -11,7 +11,7 @@ object Version {
 }
 object Deps{
     val Android= object {
-        val androidCore = "androidx.core:core-ktx:1.9.0"
+        val androidCore = "androidx.core:core-ktx:1.7.0"
         val appcompat ="androidx.appcompat:appcompat:1.5.1"
         val androidMaterial = "com.google.android.material:material:1.7.0"
         val androidContraintLayout= "androidx.constraintlayout:constraintlayout:2.1.4"

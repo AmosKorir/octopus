@@ -136,8 +136,13 @@ class ProfileFragment : Fragment(), ItemSelected {
         this.user = user
         binding.usernameTv.text = user.name
         binding.organizationTv.text = user.company
+
+        binding.userTotalVIew.followersChip.text =getString(R.string.followers,user.followers.toString())
+        binding.userTotalVIew.followingChip.text =getString(R.string.followings,user.following.toString())
+        binding.userTotalVIew.repositoriesChip.text = getString(R.string.repositories,user.public_repos.toString())
         searchNewViewModel.getFollowers(username)
         searchNewViewModel.getFollowing(username)
+
 
         Glide.with(this).load(user.avatar_url).centerCrop().circleCrop()
             .placeholder(R.drawable.octocat).into(binding.userImageView);

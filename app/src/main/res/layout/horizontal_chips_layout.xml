@@ -19,27 +19,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_weight="1"
-                android:text=" Followers 200"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/purple_200" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip6"
+                android:id="@+id/followingChip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_weight="1"
-                android:text="Following 51"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/purple_500" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip7"
+                android:id="@+id/repositoriesChip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:layout_weight="1"
-                android:text="Repositories 40"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/material_dynamic_primary10" />
 
